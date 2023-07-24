@@ -8,7 +8,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 const ModalCreateNews = ({ openNews, setOpenNews, refresh }) => {
-    const [dropdownValue, setDropdownValue] = useState([])
+    const [selectedFile, setSelectedFile] = useState(undefined)
   const createTagFormik = useFormik({
     initialValues: {
       title: '',
@@ -22,24 +22,29 @@ const ModalCreateNews = ({ openNews, setOpenNews, refresh }) => {
   });
 
   const handleSubmit = async (values) => {
-    const body = {
-      title: values.title,
-      author: values.author,
-      content: values.content,
-      tagIds: values.tagIds,
-    };
+    // const body = {
+    //   title: values.title,
+    //   author: values.author,
+    //   content: values.content,
+    //   tagIds: values.tagIds,
+    // };
+    const body = new FormData();
+    body.append("title", values.title);
+    body.append("author", values.author);
+    body.append("content", values.content);
+    body.append("image", selectedFile);
 
     console.log({ body });
-    // const data = await NewsService.CreateNews(body);
-    // console.log({data})
+    const data = await NewsService.CreateNews(body);
+    console.log({data})
 
-    // if (data.status == 201) {
-    //   setOpenNews(false);
-    //   refresh();
-    //   toast.success('Successfully created tag');
-    // } else {
-    //   toast.error('Error');
-    // }
+    if (data.status == 201) {
+      setOpenNews(false);
+      refresh();
+      toast.success('Successfully created News');
+    } else {
+      toast.error('Error');
+    }
   };
 
   const options = [
@@ -106,6 +111,15 @@ const ModalCreateNews = ({ openNews, setOpenNews, refresh }) => {
                 style={{ height: '50vh', paddingBottom: '5em' }}
                 value={createTagFormik.values.content}
                 onChange={(e) => createTagFormik.setFieldValue('content', e)}
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>Thumbnail Image</label>
+              <input
+                name="thumbnail"
+                type='file'
+                // value={selectedFile}
+                onChange={(e) => setSelectedFile(e.target.files[0])}
               />
             </Form.Field>
           </Form>
